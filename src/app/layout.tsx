@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   description: "Discover our exclusive collection of handcrafted jewelry.",
 };
 
+import TextCursor from "@/components/ui/TextCursor";
 import { ClickSpark } from "@/components/ui/ClickSpark";
 
 export default function RootLayout({
@@ -29,6 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="antialiased bg-background text-foreground font-sans">
+        <TextCursor
+          text="Hello!"
+          spacing={80}
+          followMouseDirection={true}
+          randomFloat={true}
+          exitDuration={0.3}
+          removalInterval={20}
+          maxPoints={10}
+        />
         <ClickSpark sparkColor="#d4af37" sparkSize={8} sparkRadius={20} sparkCount={12} duration={0.6}>
           {children}
         </ClickSpark>
