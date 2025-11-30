@@ -14,15 +14,31 @@ export function FullScreenRive() {
             alignment: Alignment.Center,
         }),
         autoplay: true,
-        // Play both the main loop ('All') and the Sheep loop ('Sheeps Eating')
-        animations: ["All", "Sheeps Eating"],
+        // Play 'All' and every specific sheep loop found to ensure they all move
+        animations: [
+            "All",
+            "Sheeps Eating",
+            "Sheep 3 eating",
+            "Sheep 2 eating",
+            "Sheeps ears 1",
+            "Sheep 2 ears",
+            "Stars Moving"
+        ],
     });
 
     // Ensure animations play when Rive is ready
     useEffect(() => {
         if (rive) {
-            // Force play both loops to be sure
-            rive.play(["All", "Sheeps Eating"]);
+            // Force play all loops
+            rive.play([
+                "All",
+                "Sheeps Eating",
+                "Sheep 3 eating",
+                "Sheep 2 eating",
+                "Sheeps ears 1",
+                "Sheep 2 ears",
+                "Stars Moving"
+            ]);
         }
     }, [rive]);
 
