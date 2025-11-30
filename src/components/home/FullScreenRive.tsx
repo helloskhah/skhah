@@ -28,30 +28,47 @@ export function FullScreenRive() {
 
     useEffect(() => {
         if (rive) {
+            // 3. Update debug info when rive instance changes (artboard changed)
             // Wait a tick to ensure Rive is fully ready
-            setTimeout(() => {
-                // Try to get artboard names if available on the instance or source
-                // Note: The react-canvas wrapper might not expose all artboards easily without loading the file separately.
-                // We will list what we can see from the current instance.
+            const timer = setTimeout(() => {
+                try {
+                    // Safety check for Rive instance
+                    if (!rive || !rive.animationNames || !rive.stateMachineNames) return;
 
-                const animations = rive.animationNames;
-                const stateMachines = rive.stateMachineNames;
-                const inputs = stateMachines.length > 0 ? rive.stateMachineInputs(stateMachines[0]) : [];
+                    const animations = rive.animationNames;
+                    const stateMachines = rive.stateMachineNames;
 
-                setDebugInfo(prev => ({
-                    ...prev,
-                    animations,
-                    stateMachines,
-                    inputs: inputs.map(i => ({ name: i.name, type: i.type, value: i.value })),
-                }));
+                    let inputs: any[] = [];
+                    if (stateMachines.length > 0) {
+                        try {
+                            const smInputs = rive.stateMachineInputs(stateMachines[0]);
+                            if (smInputs) {
+                                inputs = smInputs.map(i => ({ name: i.name, type: i.type, value: i.value }));
+                            }
+                        } catch (e) {
+                            console.warn("Could not load state machine inputs:", e);
+                        }
+                    }
 
-                // Auto-play something
-                if (stateMachines.length > 0 && !rive.isPlaying) {
-                    rive.play(stateMachines[0]);
-                } else if (animations.length > 0 && !rive.isPlaying) {
-                    rive.play(animations[0]);
+                    setDebugInfo(prev => ({
+                        ...prev,
+                        animations,
+                        stateMachines,
+                        inputs,
+                    }));
+
+                    // Auto-play something
+                    if (stateMachines.length > 0 && !rive.isPlaying) {
+                        rive.play(stateMachines[0]);
+                    } else if (animations.length > 0 && !rive.isPlaying) {
+                        rive.play(animations[0]);
+                    }
+                } catch (err) {
+                    console.error("Error in Rive debug logic:", err);
                 }
-            }, 100);
+            }, 500); // Increased timeout to be safer
+
+            return () => clearTimeout(timer);
         }
     }, [rive]);
 
