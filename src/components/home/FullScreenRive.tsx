@@ -33,8 +33,19 @@ export function FullScreenRive() {
         onOffInput.value = false;
         console.log("Set day mode (on/off = false)");
 
-        // Start playback only after we've set the input
+        // Start the state machine
         rive.play();
+
+        // ALSO play all the loop animations (sheep, clouds, etc.)
+        const allAnimations = rive.animationNames;
+        console.log("Available animations:", allAnimations);
+
+        // Play all animations to ensure continuous movement
+        if (allAnimations && allAnimations.length > 0) {
+            rive.play(allAnimations);
+            console.log("Playing all animations:", allAnimations);
+        }
+
         console.log("Started Rive playback with 'All' state machine");
     }, [rive, onOffInput]);
 
