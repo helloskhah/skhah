@@ -6,41 +6,41 @@ import { Moon, Sun } from "lucide-react";
 
 export function FullScreenRive() {
     const [isNight, setIsNight] = useState(false);
-    const [currentArtboard, setCurrentArtboard] = useState<string>("Day");
 
     const { RiveComponent, rive } = useRive({
         src: "/nature.riv",
-        artboard: currentArtboard, // Use the current artboard (Day or Night)
         layout: new Layout({
             fit: Fit.Cover,
             alignment: Alignment.Center,
         }),
-        autoplay: true, // Autoplay animations on the selected artboard
+        autoplay: true,
     });
 
-    // Play all animations when artboard changes
+    // Play all animations when Rive is ready
     useEffect(() => {
         if (rive) {
             const allAnimations = rive.animationNames;
-            console.log(`Artboard: ${currentArtboard}, Animations:`, allAnimations);
+            console.log("All animations:", allAnimations);
 
-            // Play all available animations for this artboard
+            // Play all animations
             if (allAnimations && allAnimations.length > 0) {
                 rive.play(allAnimations);
             }
         }
-    }, [rive, currentArtboard]);
+    }, [rive]);
 
     const toggleTheme = () => {
+        if (!rive) return;
+
         if (isNight) {
             // Switch to Day
-            console.log("Switching to Day artboard");
-            setCurrentArtboard("Day");
+            console.log("Switching to Day");
+            rive.play("Environment Night to Sun trans");
             setIsNight(false);
         } else {
             // Switch to Night
-            console.log("Switching to Night artboard");
-            setCurrentArtboard("Night");
+            console.log("Switching to Night");
+            rive.play("Environment Sun to Night trans");
             setIsNight(true);
         }
     };
