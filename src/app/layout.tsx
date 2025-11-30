@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   description: "Discover our exclusive collection of handcrafted jewelry.",
 };
 
+import PasscodeLock from "@/components/auth/PasscodeLock";
 import TextCursor from "@/components/ui/TextCursor";
 import { ClickSpark } from "@/components/ui/ClickSpark";
 
@@ -30,18 +31,20 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="antialiased bg-background text-foreground font-sans">
-        <TextCursor
-          text="skhah jewellery"
-          spacing={300}
-          followMouseDirection={true}
-          randomFloat={false}
-          exitDuration={0.5}
-          removalInterval={10}
-          maxPoints={4}
-        />
-        <ClickSpark sparkColor="#d4af37" sparkSize={8} sparkRadius={20} sparkCount={12} duration={0.6}>
-          {children}
-        </ClickSpark>
+        <PasscodeLock>
+          <TextCursor
+            text="skhah jewellery"
+            spacing={300}
+            followMouseDirection={true}
+            randomFloat={false}
+            exitDuration={0.5}
+            removalInterval={10}
+            maxPoints={4}
+          />
+          <ClickSpark sparkColor="#d4af37" sparkSize={8} sparkRadius={20} sparkCount={12} duration={0.6}>
+            {children}
+          </ClickSpark>
+        </PasscodeLock>
       </body>
     </html>
   );
