@@ -31,7 +31,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="antialiased bg-background text-foreground font-sans">
         <TextCursor
-          text="Hello!"
+          text="skhah jewellery"
           spacing={80}
           followMouseDirection={true}
           randomFloat={true}

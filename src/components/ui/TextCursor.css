@@ -24,6 +24,41 @@
     user-select: none;
     white-space: nowrap;
     font-size: 1.875rem;
-    color: var(--foreground);
-    /* Ensure visibility */
+    /* color: var(--foreground); Removed static color */
+    animation: rainbow 3s linear infinite;
+    /* Add rainbow animation */
+}
+
+@keyframes rainbow {
+    0% {
+        color: #ff0000;
+    }
+
+    14% {
+        color: #ff7f00;
+    }
+
+    28% {
+        color: #ffff00;
+    }
+
+    42% {
+        color: #00ff00;
+    }
+
+    57% {
+        color: #0000ff;
+    }
+
+    71% {
+        color: #4b0082;
+    }
+
+    85% {
+        color: #9400d3;
+    }
+
+    100% {
+        color: #ff0000;
+    }
 }
