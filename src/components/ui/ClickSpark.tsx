@@ -27,45 +27,42 @@ export function ClickSpark({
     duration = 0.4,
 }: ClickSparkProps) {
     const [sparks, setSparks] = useState<Spark[]>([]);
-    const containerRef = useRef<HTMLDivElement>(null);
 
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) {
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const newSpark = { id: Date.now(), x, y };
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            const newSpark = { id: Date.now(), x: e.clientX, y: e.clientY };
             setSparks((prev) => [...prev, newSpark]);
 
             // Cleanup spark after animation
             setTimeout(() => {
                 setSparks((prev) => prev.filter((s) => s.id !== newSpark.id));
             }, duration * 1000);
-        }
-    };
+        };
+
+        document.addEventListener("click", handleClick);
+        return () => document.removeEventListener("click", handleClick);
+    }, [duration]);
 
     return (
-        <div
-            ref={containerRef}
-            onClick={handleClick}
-            className="relative w-full h-full"
-        >
+        <>
             {children}
-            <AnimatePresence>
-                {sparks.map((spark) => (
-                    <SparkGroup
-                        key={spark.id}
-                        x={spark.x}
-                        y={spark.y}
-                        color={sparkColor}
-                        size={sparkSize}
-                        radius={sparkRadius}
-                        count={sparkCount}
-                        duration={duration}
-                    />
-                ))}
-            </AnimatePresence>
-        </div>
+            <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+                <AnimatePresence>
+                    {sparks.map((spark) => (
+                        <SparkGroup
+                            key={spark.id}
+                            x={spark.x}
+                            y={spark.y}
+                            color={sparkColor}
+                            size={sparkSize}
+                            radius={sparkRadius}
+                            count={sparkCount}
+                            duration={duration}
+                        />
+                    ))}
+                </AnimatePresence>
+            </div>
+        </>
     );
 }
 
