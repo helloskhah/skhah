@@ -25,14 +25,16 @@ export function FullScreenRive() {
     const onOff = useStateMachineInput(rive, SM, INPUT, false);
 
     useEffect(() => {
-        if (!rive || !onOff) return;
+        if (!rive || !onOff) {
+            console.log("Waiting for Rive/Input...", { rive: !!rive, onOff: !!onOff });
+            return;
+        }
 
         // Force day mode deterministically
         onOff.value = false;
         console.log("Set day mode (on/off = false)");
 
-        // Show only after the input is available and set (prevents night flash)
-        setReady(true);
+        // We don't need setReady anymore, we'll just show it immediately
     }, [rive, onOff]);
 
     const toggle = () => {
@@ -44,10 +46,7 @@ export function FullScreenRive() {
     };
 
     return (
-        <div
-            className="fixed inset-0 w-full h-full z-0 bg-black"
-            style={{ opacity: ready ? 1 : 0 }}
-        >
+        <div className="fixed inset-0 w-full h-full z-0 bg-black">
             <RiveComponent className="w-full h-full" />
 
             {/* Theme Toggle Button */}
