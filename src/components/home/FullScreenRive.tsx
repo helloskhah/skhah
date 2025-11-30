@@ -16,15 +16,30 @@ export function FullScreenRive() {
         autoplay: true,
     });
 
-    // Play all animations when Rive is ready
+    // Play all animations when Rive is ready AND force day mode
     useEffect(() => {
         if (rive) {
             const allAnimations = rive.animationNames;
             console.log("All animations:", allAnimations);
 
-            // Play all animations
-            if (allAnimations && allAnimations.length > 0) {
-                rive.play(allAnimations);
+            // First, transition from night to day to ensure we start in day mode
+            if (allAnimations.includes("Environment Night to Sun trans")) {
+                rive.play("Environment Night to Sun trans");
+
+                // After transition completes, play all loop animations
+                setTimeout(() => {
+                    const loopAnimations = allAnimations.filter(anim =>
+                        !anim.includes("trans") && !anim.includes("transition")
+                    );
+                    if (loopAnimations.length > 0) {
+                        rive.play(loopAnimations);
+                    }
+                }, 1500);
+            } else {
+                // Fallback: just play all animations
+                if (allAnimations && allAnimations.length > 0) {
+                    rive.play(allAnimations);
+                }
             }
         }
     }, [rive]);
