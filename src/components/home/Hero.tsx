@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { RiveAnimation } from "./RiveAnimation";
+
 
 export function Hero() {
     return (
@@ -55,16 +55,6 @@ export function Hero() {
                     </Link>
                 </motion.div>
             </div>
-
-            {/* Rive Animation */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.5, delay: 0.8 }}
-                className="absolute inset-0 z-0 opacity-30 pointer-events-none"
-            >
-                <RiveAnimation />
-            </motion.div>
 
             {/* Decorative Elements */}
             <motion.div
