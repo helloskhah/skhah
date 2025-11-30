@@ -1,70 +1,60 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
+import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { Moon, Sun } from "lucide-react";
 
 export function FullScreenRive() {
     const [isNight, setIsNight] = useState(false);
 
+    const SM = "All"; // State machine for theme control
+    const INPUT = "on/off"; // Boolean input (false = day, true = night)
+    const LOOP_ANIM = "All"; // Looping animation for continuous movement
+
     const { rive, RiveComponent } = useRive({
         src: "/nature.riv",
-        autoplay: false, // We control start precisely
+        autoplay: false,
+        stateMachines: SM, // Instantiate state machine
+        animations: LOOP_ANIM, // Instantiate looping animation
         layout: new Layout({
             fit: Fit.Cover,
             alignment: Alignment.Center,
         }),
     });
 
+    // Get the day/night input
+    const onOff = useStateMachineInput(rive, SM, INPUT, false);
+
     useEffect(() => {
-        if (!rive) return;
+        if (!rive || !onOff) return;
 
-        const SM = "All"; // State machine for day/night control
-        const INPUT = "on/off"; // Boolean input
-        const DAY_VALUE = false; // false = day mode
+        // Set day mode on first frame
+        onOff.value = false;
+        console.log("Set day mode (on/off = false)");
 
-        // Get all animations - we need at least one looping animation
-        const animNames = (rive as any).animationNames ?? [];
-        console.log("Available animations:", animNames);
-        console.log("Available state machines:", (rive as any).stateMachineNames);
+        // Play all instantiated animations/state machines (no args = play all)
+        rive.play();
 
-        // Pick looping animations - prefer "All" or use all available animations
-        const LOOP_ANIMS = animNames.length > 0 ? animNames : [];
+        // Optional: ensure rendering is active
+        (rive as any).startRendering?.();
 
-        // IMPORTANT: instantiate BOTH state machine AND animations via reset()
-        rive.reset({
-            stateMachines: SM,
-            animations: LOOP_ANIMS, // All looping animations
-            autoplay: false,
-        });
-
-        // Set day mode BEFORE playing
-        const input = rive.stateMachineInputs(SM)?.find((i: any) => i.name === INPUT);
-        if (input && "value" in input) {
-            input.value = DAY_VALUE;
-            console.log(`Set day mode (${INPUT} = ${DAY_VALUE})`);
-        }
-
-        // Start: play both state machine and all animations
-        const toPlay = [SM, ...LOOP_ANIMS];
-        rive.play(toPlay);
-        console.log("Playing:", toPlay);
-    }, [rive]);
+        // Debug: confirm what's actually playing
+        console.log("=== PLAYBACK STATUS ===");
+        console.log("playingAnimationNames:", (rive as any).playingAnimationNames);
+        console.log("playingStateMachineNames:", (rive as any).playingStateMachineNames);
+        console.log("All animations available:", (rive as any).animationNames);
+    }, [rive, onOff]);
 
     const toggleTheme = () => {
-        if (!rive) return;
-
-        const SM = "All";
-        const INPUT = "on/off";
-
-        // Get the input and toggle it
-        const input = rive.stateMachineInputs(SM)?.find((i: any) => i.name === INPUT);
-        if (input && "value" in input) {
-            const newValue = !isNight;
-            input.value = newValue;
-            setIsNight(newValue);
-            console.log(`Toggled to ${newValue ? "night" : "day"} mode`);
+        if (!onOff) {
+            console.warn("on/off input not available yet");
+            return;
         }
+
+        const newValue = !isNight;
+        onOff.value = newValue;
+        setIsNight(newValue);
+        console.log(`Toggled to ${newValue ? "night" : "day"} mode`);
     };
 
     return (
