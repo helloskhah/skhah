@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useRive, Layout, Fit, Alignment, RiveFile } from "@rive-app/react-canvas";
+import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { useState, useEffect } from "react";
 
 export function FullScreenRive() {
@@ -12,44 +13,27 @@ export function FullScreenRive() {
         inputs: any[];
     }>({ artboards: [], animations: [], stateMachines: [], inputs: [] });
 
-    // 1. Load the RiveFile first to inspect contents
-    useEffect(() => {
-        async function loadFile() {
-            try {
-                const file = await RiveFile.new({ src: "/nature.riv" });
-                await file.init(); // Wait for file to fully load
-
-                const artboardNames = file.artboardNames;
-                console.log("Found Artboards:", artboardNames);
-
-                setDebugInfo(prev => ({ ...prev, artboards: artboardNames }));
-
-                // Default to first artboard if not set
-                if (!currentArtboard && artboardNames.length > 0) {
-                    setCurrentArtboard(artboardNames[0]);
-                }
-            } catch (e) {
-                console.error("Failed to load Rive file:", e);
-            }
-        }
-        loadFile();
-    }, []);
-
-    // 2. Use useRive with the specific artboard
     const { RiveComponent, rive } = useRive({
         src: "/nature.riv",
-        artboard: currentArtboard || undefined, // Pass selected artboard
+        artboard: currentArtboard || undefined,
         layout: new Layout({
             fit: Fit.Cover,
             alignment: Alignment.Center,
         }),
         autoplay: true,
+        onLoad: () => {
+            console.log("Rive loaded");
+        },
     });
 
-    // 3. Update debug info when rive instance changes (artboard changed)
     useEffect(() => {
         if (rive) {
+            // Wait a tick to ensure Rive is fully ready
             setTimeout(() => {
+                // Try to get artboard names if available on the instance or source
+                // Note: The react-canvas wrapper might not expose all artboards easily without loading the file separately.
+                // We will list what we can see from the current instance.
+
                 const animations = rive.animationNames;
                 const stateMachines = rive.stateMachineNames;
                 const inputs = stateMachines.length > 0 ? rive.stateMachineInputs(stateMachines[0]) : [];
@@ -80,20 +64,9 @@ export function FullScreenRive() {
                 <h3 className="font-bold text-lg mb-2 text-primary">Rive Inspector</h3>
 
                 <div className="mb-4 border-b border-gray-700 pb-2">
-                    <strong className="text-yellow-400 block mb-1">Artboards (Click to Switch):</strong>
-                    <div className="flex flex-wrap gap-2">
-                        {debugInfo.artboards.length > 0 ? (
-                            debugInfo.artboards.map(ab => (
-                                <button
-                                    key={ab}
-                                    onClick={() => setCurrentArtboard(ab)}
-                                    className={`px-2 py-1 rounded border ${currentArtboard === ab ? 'bg-yellow-600 border-yellow-400' : 'bg-gray-700 border-gray-600 hover:bg-gray-600'}`}
-                                >
-                                    {ab}
-                                </button>
-                            ))
-                        ) : <span className="text-red-400">Loading...</span>}
-                    </div>
+                    <p className="text-gray-400 mb-1">
+                        (Artboard switching temporarily disabled to fix build)
+                    </p>
                 </div>
 
                 <div className="mb-4">
@@ -129,7 +102,15 @@ export function FullScreenRive() {
                         ) : <span className="text-gray-500 italic">None on this artboard</span>}
                     </div>
                 </div>
+
+                <div>
+                    <strong className="text-gray-400">Inputs (First SM):</strong>
+                    <pre className="mt-1 bg-white/10 p-2 rounded">
+                        {JSON.stringify(debugInfo.inputs, null, 2)}
+                    </pre>
+                </div>
             </div>
         </div>
     );
 }
+
