@@ -9,6 +9,7 @@ export function FullScreenRive() {
 
     const { RiveComponent, rive } = useRive({
         src: "/nature.riv",
+        artboard: "Day", // Start with Day artboard
         layout: new Layout({
             fit: Fit.Cover,
             alignment: Alignment.Center,
@@ -34,7 +35,10 @@ export function FullScreenRive() {
         if (!rive) return;
 
         if (isNight) {
-            // Switch to Day
+            // Switch to Day - change artboard
+            rive.stop();
+            // Note: Rive doesn't support dynamic artboard switching easily
+            // The transitions should handle this via animations
             rive.play("Environment Night to Sun trans");
             setIsNight(false);
         } else {
@@ -43,8 +47,6 @@ export function FullScreenRive() {
             setIsNight(true);
         }
     };
-
-    const [showList, setShowList] = useState(false);
 
     return (
         <div className="fixed inset-0 w-full h-full z-0 bg-black">
@@ -62,32 +64,6 @@ export function FullScreenRive() {
                     <Moon className="w-6 h-6 text-blue-200 group-hover:-rotate-12 transition-transform" />
                 )}
             </button>
-
-            {/* Temporary Debug: List All Animations */}
-            <button
-                onClick={() => setShowList(!showList)}
-                className="absolute bottom-6 left-6 z-50 px-4 py-2 bg-black/50 text-white text-xs rounded hover:bg-black/70"
-            >
-                {showList ? "Hide List" : "Show All Animations"}
-            </button>
-
-            {showList && rive && (
-                <div className="absolute top-20 left-6 bottom-20 w-80 bg-black/90 text-white p-4 rounded overflow-auto z-50 border border-white/20">
-                    <h3 className="font-bold mb-2 text-yellow-400">All Animations Found:</h3>
-                    <textarea
-                        readOnly
-                        className="w-full h-64 bg-gray-900 text-xs p-2 rounded mb-2"
-                        value={rive.animationNames.join("\n")}
-                    />
-                    <h3 className="font-bold mb-2 text-blue-400">State Machines:</h3>
-                    <textarea
-                        readOnly
-                        className="w-full h-32 bg-gray-900 text-xs p-2 rounded"
-                        value={rive.stateMachineNames.join("\n")}
-                    />
-                    <p className="text-xs text-gray-400 mt-2">Copy these lists and send them to the developer!</p>
-                </div>
-            )}
         </div>
     );
 }
