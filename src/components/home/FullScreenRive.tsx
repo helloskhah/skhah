@@ -1,78 +1,94 @@
 "use client";
 
-import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { useEffect, useState } from "react";
+import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { Moon, Sun } from "lucide-react";
 
+type DebugInfo = {
+    stateMachines: string[];
+    animations: string[];
+    inputs: { name: string; valueType: string; value: unknown; hasFire: boolean }[];
+};
+
 export function FullScreenRive() {
+    // We'll update these once we see the debug output
+    const STATE_MACHINE = "Start"; // placeholder - will update from debug
+    const NIGHT_INPUT = "isNight"; // placeholder - will update from debug
+
+    const [debug, setDebug] = useState<DebugInfo | null>(null);
     const [isNight, setIsNight] = useState(false);
-    const [debugInfo, setDebugInfo] = useState<string>("");
 
-    const { rive, RiveComponent } = useRive({
-        src: "/nature.riv",
-        // We'll try to use state machine if it exists
-        // stateMachines: "State Machine 1", // We'll detect this dynamically first
-        autoplay: true,
-        layout: new Layout({
-            fit: Fit.Cover,
-            alignment: Alignment.Center,
-        }),
-    });
-
-    // Log state machine info for debugging
-    useEffect(() => {
-        if (rive) {
-            const stateMachines = rive.stateMachineNames;
-            const animations = rive.animationNames;
-
-            console.log("=== RIVE DEBUG INFO ===");
-            console.log("State Machines:", stateMachines);
-            console.log("Animations:", animations);
-
-            if (stateMachines.length > 0) {
-                const firstSM = stateMachines[0];
-                const inputs = rive.stateMachineInputs(firstSM);
-                console.log(`Inputs for "${firstSM}":`, inputs?.map(i => ({
-                    name: i.name,
-                    type: i.type,
-                    value: i.value
-                })));
-
-                setDebugInfo(`SM: ${firstSM}, Inputs: ${inputs?.map(i => i.name).join(", ") || "none"}`);
-            } else {
-                console.log("No state machines found, falling back to animations");
-                setDebugInfo("No state machines - using animations");
-
-                // Play all animations if no state machine
-                if (animations.length > 0) {
-                    rive.play(animations);
-                }
-            }
+    const { rive, RiveComponent } = useRive(
+        {
+            src: "/nature.riv",
+            stateMachines: STATE_MACHINE,
+            autoplay: false, // CRITICAL: prevent auto-play before setting inputs
+            layout: new Layout({
+                fit: Fit.Cover,
+                alignment: Alignment.Center,
+            }),
         }
-    }, [rive]);
+    );
 
-    const toggleTheme = () => {
+    // Get the day/night input (with initial value = false for day mode)
+    const nightInput = useStateMachineInput(rive, STATE_MACHINE, NIGHT_INPUT, false);
+
+    useEffect(() => {
         if (!rive) return;
 
-        const stateMachines = rive.stateMachineNames;
+        // Collect debug info
+        const smNames = (rive as any).stateMachineNames ?? [];
+        const animNames = (rive as any).animationNames ?? [];
 
-        if (stateMachines.length > 0) {
-            // If there's a state machine, we need to use inputs
-            // This will be updated once we know the exact input name
-            console.log("Toggle via state machine (needs input name)");
-            setIsNight(!isNight);
-        } else {
-            // Fallback to animation transitions
-            if (isNight) {
-                console.log("Switching to Day");
-                rive.play("Environment Night to Sun trans");
-                setIsNight(false);
-            } else {
-                console.log("Switching to Night");
-                rive.play("Environment Sun to Night trans");
-                setIsNight(true);
-            }
+        let inputsRaw: any[] = [];
+        if (smNames.length > 0) {
+            // Try to get inputs from the first state machine
+            const firstSM = smNames[0];
+            inputsRaw = rive.stateMachineInputs(firstSM) ?? [];
+
+            console.log("=== RIVE DEBUG INFO ===");
+            console.log("State Machines:", smNames);
+            console.log("Animations:", animNames);
+            console.log(`Inputs for "${firstSM}":`, inputsRaw.map((i: any) => ({
+                name: i.name,
+                type: typeof i.value,
+                value: i.value,
+                hasFire: typeof i.fire === "function",
+            })));
         }
+
+        setDebug({
+            stateMachines: smNames,
+            animations: animNames,
+            inputs: inputsRaw.map((i: any) => ({
+                name: i.name,
+                valueType: typeof i.value,
+                value: i.value,
+                hasFire: typeof i.fire === "function",
+            })),
+        });
+
+        // Force day mode BEFORE starting playback
+        if (nightInput) {
+            nightInput.value = false; // day mode
+            console.log("Set day mode (isNight = false)");
+        }
+
+        // Start playback only after we've set the input
+        rive.play();
+        console.log("Started Rive playback");
+    }, [rive, nightInput]);
+
+    const toggleTheme = () => {
+        if (!nightInput) {
+            console.warn("Night input not available yet");
+            return;
+        }
+
+        const newNightValue = !isNight;
+        nightInput.value = newNightValue;
+        setIsNight(newNightValue);
+        console.log(`Toggled to ${newNightValue ? "night" : "day"} mode`);
     };
 
     return (
@@ -92,10 +108,12 @@ export function FullScreenRive() {
                 )}
             </button>
 
-            {/* Temporary debug info */}
-            <div className="absolute bottom-4 left-4 bg-black/80 text-white p-2 text-xs rounded">
-                {debugInfo || "Loading..."}
-            </div>
+            {/* Debug info overlay */}
+            {debug && (
+                <pre className="absolute left-4 bottom-4 m-0 p-2 text-[11px] leading-tight bg-black/80 text-white rounded-lg max-w-[380px] overflow-auto max-h-[180px] font-mono">
+                    {JSON.stringify(debug, null, 2)}
+                </pre>
+            )}
         </div>
     );
 }
