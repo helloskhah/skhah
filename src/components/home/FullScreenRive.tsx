@@ -6,69 +6,42 @@ import { Moon, Sun } from "lucide-react";
 
 export function FullScreenRive() {
     const [isNight, setIsNight] = useState(false);
+    const [currentArtboard, setCurrentArtboard] = useState<string>("Day");
 
     const { RiveComponent, rive } = useRive({
         src: "/nature.riv",
+        artboard: currentArtboard, // Use the current artboard (Day or Night)
         layout: new Layout({
             fit: Fit.Cover,
             alignment: Alignment.Center,
         }),
-        autoplay: false, // Don't autoplay, we'll control it manually
+        autoplay: true, // Autoplay animations on the selected artboard
     });
 
-    // Initialize with Day mode and play all loop animations
+    // Play all animations when artboard changes
     useEffect(() => {
         if (rive) {
-            // First, ensure we're in day mode by playing the reverse transition if needed
-            // This ensures we start in daytime
             const allAnimations = rive.animationNames;
-            console.log("Available animations:", allAnimations);
+            console.log(`Artboard: ${currentArtboard}, Animations:`, allAnimations);
 
-            // Filter out transition animations and play only the loop animations
-            const loopAnimations = allAnimations.filter(anim =>
-                !anim.includes("trans") && !anim.includes("transition")
-            );
-
-            console.log("Playing loop animations:", loopAnimations);
-
-            // Play all the loop animations (sheep, clouds, etc.)
-            if (loopAnimations.length > 0) {
-                rive.play(loopAnimations);
+            // Play all available animations for this artboard
+            if (allAnimations && allAnimations.length > 0) {
+                rive.play(allAnimations);
             }
         }
-    }, [rive]);
+    }, [rive, currentArtboard]);
 
     const toggleTheme = () => {
-        if (!rive) return;
-
         if (isNight) {
             // Switch to Day
-            console.log("Switching to Day");
-            rive.play("Environment Night to Sun trans");
+            console.log("Switching to Day artboard");
+            setCurrentArtboard("Day");
             setIsNight(false);
-
-            // After transition, continue loop animations
-            setTimeout(() => {
-                const allAnimations = rive.animationNames;
-                const loopAnimations = allAnimations.filter(anim =>
-                    !anim.includes("trans") && !anim.includes("transition")
-                );
-                rive.play(loopAnimations);
-            }, 1000);
         } else {
             // Switch to Night
-            console.log("Switching to Night");
-            rive.play("Environment Sun to Night trans");
+            console.log("Switching to Night artboard");
+            setCurrentArtboard("Night");
             setIsNight(true);
-
-            // After transition, continue loop animations
-            setTimeout(() => {
-                const allAnimations = rive.animationNames;
-                const loopAnimations = allAnimations.filter(anim =>
-                    !anim.includes("trans") && !anim.includes("transition")
-                );
-                rive.play(loopAnimations);
-            }, 1000);
         }
     };
 
