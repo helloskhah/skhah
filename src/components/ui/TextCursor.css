@@ -1,29 +1,29 @@
 .text-cursor-container {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
+    position: fixed;
+    /* Changed from relative to fixed for global overlay */
+    top: 0;
+    left: 0;
     pointer-events: none;
     z-index: 9999;
     overflow: hidden;
 }
 
 .text-cursor-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
 }
 
 .text-cursor-item {
     position: absolute;
-    pointer-events: none;
-    color: var(--foreground);
-    font-weight: bold;
-    font-size: 1.2rem;
+    user-select: none;
     white-space: nowrap;
-    /* transform is handled by motion style, but centering helps */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 1.875rem;
+    color: var(--foreground);
+    /* Ensure visibility */
 }
