@@ -1,70 +1,48 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "@rive-app/react-canvas";
+import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { Moon, Sun } from "lucide-react";
 
 export function FullScreenRive() {
-    // Exact values from debug output
-    const STATE_MACHINE = "All";
-    const NIGHT_INPUT = "on/off"; // false = day, true = night
-
     const [isNight, setIsNight] = useState(false);
 
-    const { rive, RiveComponent } = useRive(
-        {
-            src: "/nature.riv",
-            stateMachines: STATE_MACHINE,
-            autoplay: false, // CRITICAL: prevent auto-play before setting inputs
-            layout: new Layout({
-                fit: Fit.Cover,
-                alignment: Alignment.Center,
-            }),
-        }
-    );
-
-    // Get the day/night input (with initial value = false for day mode)
-    const onOffInput = useStateMachineInput(rive, STATE_MACHINE, NIGHT_INPUT, false);
+    const { rive, RiveComponent } = useRive({
+        src: "/nature.riv",
+        // Don't use state machines - they conflict with animation playback
+        layout: new Layout({
+            fit: Fit.Cover,
+            alignment: Alignment.Center,
+        }),
+        autoplay: true,
+    });
 
     useEffect(() => {
-        if (!rive || !onOffInput) return;
+        if (!rive) return;
 
-        // Force DAY mode BEFORE starting playback
-        onOffInput.value = false;
-        console.log("Set day mode (on/off = false)");
-
-        // Start the state machine
-        rive.play();
-
-        // ALSO play all the loop animations (sheep, clouds, etc.)
         const allAnimations = rive.animationNames;
-        console.log("Available animations:", allAnimations);
+        console.log("All animations:", allAnimations);
 
-        // Play all animations to ensure continuous movement
+        // Play all animations for continuous movement
         if (allAnimations && allAnimations.length > 0) {
             rive.play(allAnimations);
-            console.log("Playing all animations:", allAnimations);
+            console.log("Playing all animations");
         }
-
-        console.log("Started Rive playback with 'All' state machine");
-    }, [rive, onOffInput]);
+    }, [rive]);
 
     const toggleTheme = () => {
-        if (!onOffInput) {
-            console.warn("on/off input not available yet");
-            return;
-        }
+        if (!rive) return;
 
-        // Robust toggle - handles both boolean value and fire() trigger
-        if (typeof (onOffInput as any).value === "boolean") {
-            const newNightValue = !isNight;
-            onOffInput.value = newNightValue;
-            setIsNight(newNightValue);
-            console.log(`Toggled to ${newNightValue ? "night" : "day"} mode`);
-        } else if (typeof (onOffInput as any).fire === "function") {
-            (onOffInput as any).fire();
-            setIsNight(!isNight);
-            console.log("Fired toggle");
+        if (isNight) {
+            // Switch to Day
+            console.log("Switching to Day");
+            rive.play("Environment Night to Sun trans");
+            setIsNight(false);
+        } else {
+            // Switch to Night
+            console.log("Switching to Night");
+            rive.play("Environment Sun to Night trans");
+            setIsNight(true);
         }
     };
 
