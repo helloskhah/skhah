@@ -23,10 +23,14 @@
     position: absolute;
     user-select: none;
     white-space: nowrap;
-    font-size: 1.875rem;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
     /* color: var(--foreground); Removed static color */
     animation: rainbow 3s linear infinite;
     /* Add rainbow animation */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    /* Improve readability */
 }
 
 @keyframes rainbow {

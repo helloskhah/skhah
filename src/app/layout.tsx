@@ -32,12 +32,12 @@ export default function RootLayout({
       <body className="antialiased bg-background text-foreground font-sans">
         <TextCursor
           text="skhah jewellery"
-          spacing={80}
+          spacing={120}
           followMouseDirection={true}
-          randomFloat={true}
-          exitDuration={0.3}
+          randomFloat={false}
+          exitDuration={0.4}
           removalInterval={20}
-          maxPoints={10}
+          maxPoints={8}
         />
         <ClickSpark sparkColor="#d4af37" sparkSize={8} sparkRadius={20} sparkCount={12} duration={0.6}>
           {children}
