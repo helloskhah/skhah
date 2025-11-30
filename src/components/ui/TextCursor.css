@@ -23,14 +23,18 @@
     position: absolute;
     user-select: none;
     white-space: nowrap;
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
+    font-size: 1.5rem;
+    /* Slightly smaller for elegance */
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    /* More spacing between letters */
     color: #ffffff;
     /* Set static white color */
     /* animation: rainbow 3s linear infinite; Removed rainbow animation */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    /* Improve readability */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    /* Stronger shadow for contrast */
+    font-family: var(--font-playfair), serif;
+    /* Use the serif font for luxury feel */
 }
 
 /* @keyframes rainbow removed as it is no longer needed */
