@@ -9,7 +9,6 @@ export function FullScreenRive() {
 
     const { RiveComponent, rive } = useRive({
         src: "/nature.riv",
-        artboard: "Day", // Start with Day artboard
         layout: new Layout({
             fit: Fit.Cover,
             alignment: Alignment.Center,
