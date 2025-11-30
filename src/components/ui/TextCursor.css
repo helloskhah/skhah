@@ -26,43 +26,11 @@
     font-size: 2rem;
     font-weight: 800;
     letter-spacing: 0.1em;
-    /* color: var(--foreground); Removed static color */
-    animation: rainbow 3s linear infinite;
-    /* Add rainbow animation */
+    color: #ffffff;
+    /* Set static white color */
+    /* animation: rainbow 3s linear infinite; Removed rainbow animation */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     /* Improve readability */
 }
 
-@keyframes rainbow {
-    0% {
-        color: #ff0000;
-    }
-
-    14% {
-        color: #ff7f00;
-    }
-
-    28% {
-        color: #ffff00;
-    }
-
-    42% {
-        color: #00ff00;
-    }
-
-    57% {
-        color: #0000ff;
-    }
-
-    71% {
-        color: #4b0082;
-    }
-
-    85% {
-        color: #9400d3;
-    }
-
-    100% {
-        color: #ff0000;
-    }
-}
+/* @keyframes rainbow removed as it is no longer needed */
